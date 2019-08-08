@@ -1,4 +1,4 @@
-package com.example.procrastination
+package com.example.procrastinationgame
 
 import org.junit.Test
 

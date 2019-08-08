@@ -1,4 +1,4 @@
-package com.example.procrastination
+package com.example.procrastinationgame
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
