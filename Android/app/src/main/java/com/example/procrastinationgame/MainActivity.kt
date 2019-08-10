@@ -3,19 +3,16 @@ package com.example.procrastinationgame
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
 import android.content.SharedPreferences
-import kotlinx.android.synthetic.main.activity_main.*
-import android.widget.Toast
-
+import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.view.Window
-import android.support.v4.os.HandlerCompat.postDelayed
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
