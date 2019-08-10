@@ -1,6 +1,7 @@
 import sqlite3
 import logger
 import config
+import json
 
 
 module_name = logger.get_file_name()
@@ -76,10 +77,14 @@ class UsersDb:
                 """
                 cursor.execute(query)
                 logger.log(logger.get_file_name(), f"new user {username} created")
-                return True
+                ans = {'status': 'OK', 'username': username, 'time': None}
+                ans = json.dumps(ans)
+                return ans
         else:
             logger.log(logger.get_file_name(), f"user {username} already exist")
-            return False
+            ans = {'status': 'User with this username already exists', 'username': username, 'time': None}
+            ans = json.dumps(ans)
+            return ans
 
     def get_stat_from_user(self, username):
         if self.is_user_exists(username):
@@ -88,10 +93,15 @@ class UsersDb:
                     SELECT time_on_phone FROM {self.users_table_name} WHERE username = "{username}"
                 """
                 cursor.execute(query)
-                return cursor.fetchone()
+                time = cursor.fetchone()[0]
+                ans = {'status': 'OK', 'username': username, 'time': time}
+                ans = json.dumps(ans)
+                return ans
         else:
             logger.log(logger.get_file_name(), f"there is no such user {username}")
-            return "No such user"
+            ans = {'status': 'No such user', 'username': username, 'time': None}
+            ans = json.dumps(ans)
+            return ans
 
     def update_stat_user(self, username, time):
         if self.is_user_exists(username):
@@ -111,10 +121,15 @@ class UsersDb:
 
                 cursor.execute(query)
 
-                return time
+                ans = {'status': 'OK', 'username': username, 'time': time}
+                ans = json.dumps(ans)
+                return ans
         else:
             logger.log(logger.get_file_name(), f"there is no such user {username}")
-            return "No such user"
+
+            ans = {'status': 'No such user', 'username': username, 'time': None}
+            ans = json.dumps(ans)
+            return ans
 
 
 if __name__ == '__main__':
