@@ -56,17 +56,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-    fun loop(view: View) {
-        val handler = Handler()
-        val delay = 1000 //milliseconds
-
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                notify(null)
-                handler.postDelayed(this, delay)
-            }
-        }, delay)
-    }
 
 }
 
