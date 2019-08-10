@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 val text = resources.getString(R.string.not_switched)
                 Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
             }
+            luup(switch1)
         }
         createNotificationChannel()
     }
@@ -79,35 +80,39 @@ class MainActivity : AppCompatActivity() {
         preferencesEditor.apply()
     }
 
-    fun notify(view: View) {
+    fun notify(view: View,identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Stop starring at the Screen")
-            .setContentText("You stare at screen too long")
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText("BUAH!!!")
-            )
+            .setContentTitle("Notification Title")
+            .setContentText("Notification Text")
+            /*.setStyle(NotificationCompat.BigTextStyle()
+                .bigText("BUAH!!!"))*/
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(this)) {
             // notificationId is a unique int for each notification that you must define
-            notify(64, builder.build())
-        }
 
+            notify(identy, builder.build())
+        }
     }
 
     fun luup(view: View) {
         val handler = Handler()
-        val delay = 10000 //milliseconds
-
+         //milliseconds
+        var NIdenty = 0
+        var delay = 0
         handler.postDelayed(object : Runnable {
             override fun run() {
-                notify(view)
+                notify(view,NIdenty)
+                NIdenty = NIdenty + 1
+                if (isDebugMode) {
+                    delay = 100
+                }
+                else {
+                    delay = 10000
+                }
                 handler.postDelayed(this, delay.toLong())
             }
         }, delay.toLong())
     }
-
-
 }
 
