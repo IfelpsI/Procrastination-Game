@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Procrastination Game</string>
+    <string name="not_switched">Debug mode off</string>
+    <string name="switched">Debug mode on</string>
+    <string name="welcome_message">Да здравствует прокрастинация</string>
+    <string name="switch_text">Debug mode</string>
 </resources>
