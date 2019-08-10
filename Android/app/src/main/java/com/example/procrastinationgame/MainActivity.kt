@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.view.View
@@ -56,6 +57,24 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+    fun luup(view: View) {
+        val handler = Handler()
+        val delay = 10000 //milliseconds
+
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                notify(view)
+                handler.postDelayed(this, delay.toLong())
+            }
+        }, delay.toLong())
+    }
+
+
+
+
+
+
+
 
 }
 
