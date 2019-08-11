@@ -13,6 +13,12 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
+import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
+import android.content.Intent
+import android.provider.Settings
+import java.lang.Package.getPackage
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        openSettings()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -51,6 +60,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
         createNotificationChannel()
+
+        /*
+        val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val pack = getPackage(new)
+        */
     }
 
     private fun createNotificationChannel() {
@@ -108,6 +122,78 @@ class MainActivity : AppCompatActivity() {
         }, delay.toLong())
     }
 
+    private fun openSettings() {
+        startActivity(Intent(ACTION_USAGE_ACCESS_SETTINGS))
+    }
+
+    private fun getTime24Hours(usageStatsManager: UsageStatsManager): Int? {
+
+        var beginTime = 0
+        var endTime = 0
+        var fullTime = 0
+
+        var flag = false
+        val INTERVAL = (24 * 60 * 60 * 1000).toLong()
+        val end = System.currentTimeMillis()
+        val begin = end - INTERVAL
+        val usageEvents = usageStatsManager.queryEvents(begin, end)
+        val event = UsageEvents.Event()
+        while (usageEvents.hasNextEvent()) {
+            println(1242)
+            usageEvents.getNextEvent(event)
+            if (!flag && event.eventType == UsageEvents.Event.SCREEN_INTERACTIVE) {
+                beginTime = event.timeStamp.toInt()
+                flag = true
+            } else if (flag && event.eventType == UsageEvents.Event.SCREEN_NON_INTERACTIVE) {
+                endTime = event.timeStamp.toInt()
+                flag = false
+                fullTime += endTime - beginTime
+            }
+        }
+        if (flag) {
+            fullTime += System.currentTimeMillis().toInt() - beginTime
+        }
+
+        return fullTime
+    }
+
+    private fun getTimeDaily(usageStatsManager: UsageStatsManager): Int? {
+
+        var beginTime = 0
+        var endTime = 0
+        var fullTime = 0
+
+        var flag = false
+        val INTERVAL = UsageStatsManager.INTERVAL_DAILY.toLong()
+        var end = System.currentTimeMillis()
+        var begin = endTime - INTERVAL
+
+        val usageEvents = usageStatsManager.queryEvents(begin, end)
+        val event = UsageEvents.Event()
+
+        while (usageEvents.hasNextEvent()) {
+            println(1242)
+            usageEvents.getNextEvent(event)
+            if (!flag && event.eventType == UsageEvents.Event.SCREEN_INTERACTIVE) {
+                beginTime = event.timeStamp.toInt()
+                flag = true
+            } else if (flag && event.eventType == UsageEvents.Event.SCREEN_NON_INTERACTIVE) {
+                endTime = event.timeStamp.toInt()
+                flag = false
+                fullTime += endTime - beginTime
+            }
+        }
+        if (flag) {
+            fullTime += System.currentTimeMillis().toInt() - beginTime
+        }
+
+        return fullTime
+    }
+
+
 
 }
+
+
+
 
