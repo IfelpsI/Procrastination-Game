@@ -124,7 +124,8 @@ class MainActivity : AppCompatActivity() {
     fun notify(identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Notification Title")
+            //.setContentTitle("Notification Title")
+            .setContentTitle(randomTitle())
             .setContentText("Notification Text")
             /*.setStyle(NotificationCompat.BigTextStyle()
                 .bigText("BUAH!!!"))*/
@@ -135,7 +136,11 @@ class MainActivity : AppCompatActivity() {
             notify(identy, builder.build())
         }
     }
-
+    fun randomTitle(): String {
+        var list: MutableList<String> = mutableListOf("Title1","Title2","Title3","Title 36789","LOL")
+        var randomElement = list.random()
+        return randomElement
+    }
 
     private fun openSettings() {
         startActivity(Intent(ACTION_USAGE_ACCESS_SETTINGS))
