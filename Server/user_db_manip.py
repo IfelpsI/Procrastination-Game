@@ -3,7 +3,6 @@ import logger
 import config
 import json
 
-
 module_name = logger.get_file_name()
 
 
@@ -52,8 +51,11 @@ class UsersDb:
             (
                 id integer not null primary key autoincrement,
             username text not null,
-            time_on_phone integer 
-            );
+            time_on_phone integer,
+            friends text,
+            friend_requests_got text,
+            friend_requests_sent text 
+            )
             """
             cursor.execute(query)
             logger.log(logger.get_file_name(), f'table {self.users_table_name} just created')
@@ -122,6 +124,85 @@ class UsersDb:
                 cursor.execute(query)
 
                 ans = {'status': 'OK', 'username': username, 'time': time}
+                ans = json.dumps(ans)
+                return ans
+        else:
+            logger.log(logger.get_file_name(), f"there is no such user {username}")
+
+            ans = {'status': 'No such user', 'username': username, 'time': None}
+            ans = json.dumps(ans)
+            return ans
+
+    def get_friend_request(self, username, friend):
+        print(32423432423423432432424)
+        if self.is_user_exists(username):
+            if self.is_user_exists(friend):
+                with self.run_cursor() as cursor:
+                    print(000000000000000000000000000000000)
+
+                    query = f"""
+                        SELECT friend_requests_sent FROM {self.users_table_name} WHERE username = "{username}"
+                    """
+
+                    cursor.execute(query)
+                    print("Sefa bepis")
+                    requests_list = cursor.fetchone()[0]
+                    if requests_list:
+                        print("Kekekek")
+                        requests_list = requests_list.split(',')
+                        for friend_request in requests_list:
+                            if friend == friend_request:
+                                ans = {'status': f'Friend request to {friend} by {username} already sent',
+                                       'username': username, 'friend_name': friend}
+                                ans = json.dumps(ans)
+                                return ans
+                    else:
+                        print("SEVA DAUN")
+                        requests_list = []
+                    requests_list.append(friend)
+                    new_requests_list = ','.join(requests_list)
+                    print(new_requests_list)
+
+                    query = f"""
+                        UPDATE {self.users_table_name} SET friend_requests_sent = "{new_requests_list}" WHERE username = "{username}"
+                    """
+                    print(query)
+
+                    cursor.execute(query)
+                    print("Vonni soset")
+
+                    query = f"""
+                        SELECT friend_requests_got FROM {self.users_table_name} WHERE username = "{friend}"
+                    """
+
+                    cursor.execute(query)
+                    print("DFSDFDSFSDFS")
+                    got_requests_list = cursor.fetchone()[0]
+                    if got_requests_list:
+                        got_requests_list = got_requests_list.split(',')
+                    else:
+                        got_requests_list = []
+                    got_requests_list.append(username)
+                    got_requests_list = ','.join(got_requests_list)
+
+                    query = f"""
+                        UPDATE {self.users_table_name} SET friend_requests_got = "{got_requests_list}"
+                        WHERE username = "{friend}"
+                    """
+
+                    cursor.execute(query)
+
+                    ans = {'status': f'Friend request to {friend} by {username} successfully sent',
+                           'username': username, 'friend_name': friend}
+                    ans = json.dumps(ans)
+
+                    logger.log(logger.get_file_name(),
+                               f"Friend request to {friend} by {username} successfully sent")
+                    return ans
+            else:
+                logger.log(logger.get_file_name(), f"there is no such user {friend}")
+
+                ans = {'status': 'No such user', 'username': friend, 'time': None}
                 ans = json.dumps(ans)
                 return ans
         else:
