@@ -65,5 +65,24 @@ def friend_request():
         return smth_went_wrong
 
 
+@app.route('/set_vk_id')
+def set_vk_id():
+    try:
+        name = request.args.get('username')
+        vk_id = request.args.get('vk_id')
+        return us_db.set_user_vk_id(name, vk_id)
+    except Exception as err:
+        logger.log(logger.get_file_name(), str(err))
+
+
+@app.route('/get_user_vk_friends')
+def get_user_vk_friends():
+    try:
+        name = request.args.get('username')
+        return us_db.search_for_vk_friends(name)
+    except Exception as err:
+        logger.log(logger.get_file_name(), str(err))
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=25000, debug=True)
