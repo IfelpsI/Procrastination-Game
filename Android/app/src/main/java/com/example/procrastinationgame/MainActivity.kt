@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
@@ -26,6 +27,37 @@ class MainActivity : AppCompatActivity() {
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        var a = 0
+        fun checkLoop() {
+            var handler = Handler()
+            var waittTme = 1000 //One Second
+            var idi = 0
+            handler.postDelayed(object : Runnable {
+                override fun run() {
+                    if (isDebugMode) {
+                        if (a >= 1) {
+                            notify(switch1, idi)
+                            idi++
+                            a = 0
+                        }
+                        else {
+                            a++
+                        }
+                    } else {
+                        if (a >= 5) {
+                            notify(switch1, idi)
+                            idi++
+                            a = 0
+                        }
+                        else {
+                            a++
+                        }
+                    }
+                    handler.postDelayed(this, waittTme.toLong())
+                }
+        }, waittTme.toLong())
+    }
+        checkLoop()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -49,7 +81,6 @@ class MainActivity : AppCompatActivity() {
                 val text = resources.getString(R.string.not_switched)
                 Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
             }
-            luup(switch1)
         }
         createNotificationChannel()
     }
@@ -95,24 +126,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun luup(view: View) {
-        val handler = Handler()
-         //milliseconds
-        var NIdenty = 0
-        var delay = 0
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                notify(view,NIdenty)
-                NIdenty = NIdenty + 1
-                if (isDebugMode) {
-                    delay = 100
-                }
-                else {
-                    delay = 10000
-                }
-                handler.postDelayed(this, delay.toLong())
-            }
-        }, delay.toLong())
-    }
 }
 
