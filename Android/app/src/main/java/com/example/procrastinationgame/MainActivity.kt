@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
 
         mTimeSpent = mPreferences!!.getInt(TIME_SPENT_UNLOCKED_PHONE, 0)
-        time_spent.text = mTimeSpent.toString()
+        /*time_spent.text = mTimeSpent.toString()*/
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
 
