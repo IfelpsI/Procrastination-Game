@@ -17,8 +17,6 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.content.Intent
-import android.provider.Settings
-import java.lang.Package.getPackage
 
 
 class MainActivity : AppCompatActivity() {
@@ -60,11 +58,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         createNotificationChannel()
-
-        /*
-        val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val pack = getPackage(new)
-        */
     }
 
     private fun createNotificationChannel() {
@@ -93,30 +86,36 @@ class MainActivity : AppCompatActivity() {
         preferencesEditor.apply()
     }
 
-    fun notify(view: View) {
+    fun notify(view: View,identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Stop starring at the Screen")
-            .setContentText("You stare at screen too long")
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText("BUAH!!!")
-            )
+            .setContentTitle("Notification Title")
+            .setContentText("Notification Text")
+            /*.setStyle(NotificationCompat.BigTextStyle()
+                .bigText("BUAH!!!"))*/
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         with(NotificationManagerCompat.from(this)) {
             // notificationId is a unique int for each notification that you must define
-            notify(64, builder.build())
-        }
 
+            notify(identy, builder.build())
+        }
     }
 
     fun luup(view: View) {
         val handler = Handler()
-        val delay = 10000 //milliseconds
-
+         //milliseconds
+        var NIdenty = 0
+        var delay = 0
         handler.postDelayed(object : Runnable {
             override fun run() {
-                notify(view)
+                notify(view,NIdenty)
+                NIdenty = NIdenty + 1
+                if (isDebugMode) {
+                    delay = 100
+                }
+                else {
+                    delay = 10000
+                }
                 handler.postDelayed(this, delay.toLong())
             }
         }, delay.toLong())

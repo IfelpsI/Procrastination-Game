@@ -18,6 +18,7 @@
             android:id="@+id/textView2"/>
     <Switch
             android:text="@string/switch_text"
+            android:onClick="luup"
             android:layout_width="140dp"
             android:layout_height="58dp"
             android:id="@+id/switch1" android:scrollbarSize="4dp"
@@ -35,5 +36,12 @@
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:textAlignment="center" android:textSize="30dp"
             android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+    <Button
+            android:text="ABUTTON!!!"
+            android:onClick="luup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" tools:layout_editor_absoluteY="584dp"
+            android:id="@+id/button2" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>
