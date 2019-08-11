@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
             .setSmallIcon(R.mipmap.ic_launcher)
             //.setContentTitle("Notification Title")
             .setContentTitle(randomTitle())
-            .setContentText("Notification Text")
+            .setContentText("I am not Joking!!!")
             /*.setStyle(NotificationCompat.BigTextStyle()
                 .bigText("BUAH!!!"))*/
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun randomTitle(): String {
-        var list: MutableList<String> = mutableListOf("Title1","Title2","Title3","Title 36789","LOL")
+        var list: MutableList<String> = mutableListOf("Stop Using Your Phone","If You don't stop now, a kitten will die","Stop being addicted","PLEASE STOP USING YOUR PHONE!!!","Oh God Please NO, noooo!!!!")
         var randomElement = list.random()
         return randomElement
     }
