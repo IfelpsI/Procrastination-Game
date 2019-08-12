@@ -3,7 +3,6 @@ import logger
 import config
 import json
 
-
 module_name = logger.get_file_name()
 
 
@@ -52,8 +51,13 @@ class UsersDb:
             (
                 id integer not null primary key autoincrement,
             username text not null,
-            time_on_phone integer 
-            );
+            time_on_phone integer,
+            friends text,
+            friend_requests_got text,
+            friend_requests_sent text,
+            vk_id text,
+            vk_friends text 
+            )
             """
             cursor.execute(query)
             logger.log(logger.get_file_name(), f'table {self.users_table_name} just created')
@@ -82,7 +86,7 @@ class UsersDb:
                 return ans
         else:
             logger.log(logger.get_file_name(), f"user {username} already exist")
-            ans = {'status': 'User with this username already exists', 'username': username, 'time': None}
+            ans = {'status': 'User with this username already exists', 'username': username}
             ans = json.dumps(ans)
             return ans
 
@@ -99,7 +103,7 @@ class UsersDb:
                 return ans
         else:
             logger.log(logger.get_file_name(), f"there is no such user {username}")
-            ans = {'status': 'No such user', 'username': username, 'time': None}
+            ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
             return ans
 
@@ -127,7 +131,136 @@ class UsersDb:
         else:
             logger.log(logger.get_file_name(), f"there is no such user {username}")
 
-            ans = {'status': 'No such user', 'username': username, 'time': None}
+            ans = {'status': 'No such user', 'username': username}
+            ans = json.dumps(ans)
+            return ans
+
+    def get_friend_request(self, username, friend):
+        if self.is_user_exists(username):
+            if self.is_user_exists(friend):
+                with self.run_cursor() as cursor:
+
+                    query = f"""
+                        SELECT friend_requests_sent FROM {self.users_table_name} WHERE username = "{username}"
+                    """
+
+                    cursor.execute(query)
+                    requests_list = cursor.fetchone()[0]
+                    if requests_list:
+                        requests_list = requests_list.split(',')
+                        for friend_request in requests_list:
+                            if friend == friend_request:
+                                ans = {'status': f'Friend request to {friend} by {username} already sent',
+                                       'username': username, 'friend_name': friend}
+                                ans = json.dumps(ans)
+                                return ans
+                    else:
+                        requests_list = []
+                    requests_list.append(friend)
+                    new_requests_list = ','.join(requests_list)
+
+                    query = f"""
+                        UPDATE {self.users_table_name} SET friend_requests_sent = "{new_requests_list}" WHERE username = "{username}"
+                    """
+
+                    cursor.execute(query)
+
+                    query = f"""
+                        SELECT friend_requests_got FROM {self.users_table_name} WHERE username = "{friend}"
+                    """
+
+                    cursor.execute(query)
+                    got_requests_list = cursor.fetchone()[0]
+                    if got_requests_list:
+                        got_requests_list = got_requests_list.split(',')
+                    else:
+                        got_requests_list = []
+                    got_requests_list.append(username)
+                    got_requests_list = ','.join(got_requests_list)
+
+                    query = f"""
+                        UPDATE {self.users_table_name} SET friend_requests_got = "{got_requests_list}"
+                        WHERE username = "{friend}"
+                    """
+
+                    cursor.execute(query)
+
+                    ans = {'status': f'Friend request to {friend} by {username} successfully sent',
+                           'username': username, 'friend_name': friend}
+                    ans = json.dumps(ans)
+
+                    logger.log(logger.get_file_name(),
+                               f"Friend request to {friend} by {username} successfully sent")
+                    return ans
+            else:
+                logger.log(logger.get_file_name(), f"there is no such user {friend}")
+
+                ans = {'status': 'No such user', 'username': friend}
+                ans = json.dumps(ans)
+                return ans
+        else:
+            logger.log(logger.get_file_name(), f"there is no such user {username}")
+
+            ans = {'status': 'No such user', 'username': username}
+            ans = json.dumps(ans)
+            return ans
+
+    def set_user_vk_id(self, username, vk_id):
+        if self.is_user_exists(username):
+            with self.run_cursor() as cursor:
+
+                query = f"""
+                    UPDATE {self.users_table_name} SET vk_id = "{vk_id}" WHERE username = "{username}"
+                """
+
+                cursor.execute(query)
+
+                ans = {'status': f'vk_id added to user {username}', 'username': username}
+                ans = json.dumps(ans)
+                return ans
+        else:
+            logger.log(logger.get_file_name(), f"there is no such user {username}")
+
+            ans = {'status': 'No such user', 'username': username}
+            ans = json.dumps(ans)
+            return ans
+
+    def search_for_vk_friends(self, username):
+        if self.is_user_exists(username):
+            with self.run_cursor() as cursor:
+
+                query = f"""
+                    SELECT vk_friends FROM {self.users_table_name} WHERE username = "{username}"
+                """
+
+                cursor.execute(query)
+                vk_friends_list = cursor.fetchone()[0]
+                if vk_friends_list:
+                    vk_friends_list = vk_friends_list.split(',')
+                else:
+
+                    ans = {'status': 'User has no vk friends', 'username': username}
+                    ans = json.dumps(ans)
+                    return ans
+                vk_friends_username = []
+                for friend_id in vk_friends_list:
+
+                    query = f"""
+                        SELECT username FROM {self.users_table_name} WHERE vk_id = "{friend_id}"
+                    """
+
+                    cursor.execute(query)
+                    friend = cursor.fetchone()[0]
+                    if friend:
+                        vk_friends_username.append(friend)
+
+                ans = {'status': 'List of vk friends', 'username': username, 'list_of_vk_friends': vk_friends_username}
+                ans = json.dumps(ans)
+                return ans
+        else:
+            logger.log(logger.get_file_name(), f"there is no such user {username}")
+
+            ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
             return ans
 

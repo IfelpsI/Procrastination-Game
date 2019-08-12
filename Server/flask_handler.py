@@ -1,10 +1,14 @@
-from flask import Flask
+from flask import Flask, request
 import logger
 import user_db_manip as us_man
 import json
 app = Flask(__name__)
 
 us_db = us_man.UsersDb()
+
+
+smth_went_wrong = {'status': 'Something went wrong'}
+smth_went_wrong = json.dumps(smth_went_wrong)
 
 
 @app.route('/')
@@ -16,35 +20,66 @@ def hello_world():
         return ans
     except Exception as err:
         logger.log(logger.get_file_name(), str(err))
+        return smth_went_wrong
 
 
-@app.route('/make_user/<query>')
-def make_user(query):
+@app.route('/make_user')
+def make_user():
     try:
-        query = json.loads(query)
-        name = query['username']
+        name = request.args.get('username')
         return us_db.create_user(name)
     except Exception as err:
         logger.log(logger.get_file_name(), str(err))
+        return smth_went_wrong
 
 
-@app.route('/get_user_stats/<query>')
-def get_user_stats(query):
+@app.route('/get_user_stats')
+def get_user_stats():
     try:
-        query = json.loads(query)
-        name = query['username']
+        name = request.args.get('username')
         return us_db.get_stat_from_user(name)
+    except Exception as err:
+        logger.log(logger.get_file_name(), str(err))
+        return smth_went_wrong
+
+
+@app.route('/update_user_stats')
+def update_user_stats():
+    try:
+        name = request.args.get('username')
+        time = request.args.get('time')
+        return us_db.update_stat_user(name, time)
+    except Exception as err:
+        logger.log(logger.get_file_name(), str(err))
+        return smth_went_wrong
+
+
+@app.route('/friend_request')
+def friend_request():
+    try:
+        name = request.args.get('username')
+        friend = request.args.get('friend')
+        return us_db.get_friend_request(name, friend)
+    except Exception as err:
+        logger.log(logger.get_file_name(), str(err))
+        return smth_went_wrong
+
+
+@app.route('/set_vk_id')
+def set_vk_id():
+    try:
+        name = request.args.get('username')
+        vk_id = request.args.get('vk_id')
+        return us_db.set_user_vk_id(name, vk_id)
     except Exception as err:
         logger.log(logger.get_file_name(), str(err))
 
 
-@app.route('/update_user_stats/<query>')
-def update_user_stats(query):
+@app.route('/get_user_vk_friends')
+def get_user_vk_friends():
     try:
-        query = json.loads(query)
-        name = query['username']
-        time = query['time']
-        return us_db.update_stat_user(name, time)
+        name = request.args.get('username')
+        return us_db.search_for_vk_friends(name)
     except Exception as err:
         logger.log(logger.get_file_name(), str(err))
 
