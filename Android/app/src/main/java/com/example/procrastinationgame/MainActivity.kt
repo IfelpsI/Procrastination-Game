@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                 //.setContentType(AudioAttributes.USAGE_ALARM)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build()
-            var soundUri = Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.slow_spring_board)
+            var soundUri = Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.breaking_some_glass)
             channel.setSound(soundUri, audioAttributes)
             // Register the channel with the system
             val notificationManager: NotificationManager =
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             //.setContentTitle("Notification Title")
             .setContentTitle(randomTitle())
             .setContentText("I am not Joking!!!")
-            .setSound(Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.slow_spring_board))
+            .setSound(Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.filling_your_inbox))
             //notMP.start()
             /*.setStyle(NotificationCompat.BigTextStyle()
                 .bigText("BUAH!!!"))*/
