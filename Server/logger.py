@@ -5,10 +5,6 @@ import os
 import config
 
 
-def get_file_name():
-    return str(os.path.realpath(__file__).replace("\\", "/").split("/")[-1])
-
-
 def log(module_name, log_line):
     filename = config.logs_file
     try:
