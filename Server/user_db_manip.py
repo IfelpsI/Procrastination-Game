@@ -2,8 +2,9 @@ import sqlite3
 import logger
 import config
 import json
+import vk_api
 
-module_name = logger.get_file_name()
+module_name = 'user_db_manip.py'
 
 
 class MyCursor(sqlite3.Cursor):
@@ -16,7 +17,7 @@ class MyCursor(sqlite3.Cursor):
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type is not None:
-            logger.log(logger.get_file_name(), str(ex_value))
+            logger.log(module_name, str(ex_value))
         self.connected -= 1
         if not self.connected:
             self.connection.commit()
@@ -40,7 +41,7 @@ class UsersDb:
         with self.run_cursor() as cursor:
             query = f'DROP TABLE IF EXISTS {table_name}'
             cursor.execute(query)
-            logger.log(logger.get_file_name(), f'table {table_name} deleted')
+            logger.log(module_name, f'table {table_name} deleted')
 
     def create_users_db(self):
         with self.run_cursor() as cursor:
@@ -60,7 +61,7 @@ class UsersDb:
             )
             """
             cursor.execute(query)
-            logger.log(logger.get_file_name(), f'table {self.users_table_name} just created')
+            logger.log(module_name, f'table {self.users_table_name} just created')
 
     def is_user_exists(self, username):
         with self.run_cursor() as cursor:
@@ -80,12 +81,12 @@ class UsersDb:
                     INSERT INTO {self.users_table_name} (username, time_on_phone) VALUES ("{username}", 0)
                 """
                 cursor.execute(query)
-                logger.log(logger.get_file_name(), f"new user {username} created")
+                logger.log(module_name, f"new user {username} created")
                 ans = {'status': 'OK', 'username': username, 'time': None}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"user {username} already exist")
+            logger.log(module_name, f"user {username} already exist")
             ans = {'status': 'User with this username already exists', 'username': username}
             ans = json.dumps(ans)
             return ans
@@ -102,7 +103,7 @@ class UsersDb:
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {username}")
             ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
             return ans
@@ -129,7 +130,7 @@ class UsersDb:
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {username}")
 
             ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
@@ -189,17 +190,17 @@ class UsersDb:
                            'username': username, 'friend_name': friend}
                     ans = json.dumps(ans)
 
-                    logger.log(logger.get_file_name(),
+                    logger.log(module_name,
                                f"Friend request to {friend} by {username} successfully sent")
                     return ans
             else:
-                logger.log(logger.get_file_name(), f"there is no such user {friend}")
+                logger.log(module_name, f"there is no such user {friend}")
 
                 ans = {'status': 'No such user', 'username': friend}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {username}")
 
             ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
@@ -219,7 +220,7 @@ class UsersDb:
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {username}")
 
             ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)
@@ -258,7 +259,7 @@ class UsersDb:
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(logger.get_file_name(), f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {username}")
 
             ans = {'status': 'No such user', 'username': username}
             ans = json.dumps(ans)

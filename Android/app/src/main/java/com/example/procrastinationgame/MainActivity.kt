@@ -24,6 +24,13 @@ import android.content.pm.PackageInfo
 
 
 
+import android.media.MediaPlayer
+import android.net.Uri
+import java.nio.file.Paths
+import android.media.AudioAttributes
+
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -68,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         openSettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //var files = listOf("breaking-some-glass", "filling-your-inbox", "slow-spring-board")
+        //var rdomF = files.random()
 
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
 
@@ -111,12 +120,18 @@ class MainActivity : AppCompatActivity() {
             val channel = NotificationChannel("nc1", name, importance).apply {
                 description = descriptionText
             }
+            val audioAttributes = AudioAttributes.Builder()
+                //.setContentType(AudioAttributes.USAGE_ALARM)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build()
+            //var soundUri = Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.breaking_some_glass)
+            //channel.setSound(soundUri, audioAttributes)
             // Register the channel with the system
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-        
+
     }
 
     override fun onPause() {
@@ -133,6 +148,8 @@ class MainActivity : AppCompatActivity() {
             //.setContentTitle("Notification Title")
             .setContentTitle(randomTitle())
             .setContentText("I am not Joking!!!")
+            //.setSound(Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.filling_your_inbox))
+            //notMP.start()
             /*.setStyle(NotificationCompat.BigTextStyle()
                 .bigText("BUAH!!!"))*/
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -143,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun randomTitle(): String {
-        var list: MutableList<String> = mutableListOf("Stop Using Your Phone","If You don't stop now, a kitten will die","Stop being addicted","PLEASE STOP USING YOUR PHONE!!!","Oh God Please NO, noooo!!!!")
+        var list = mutableListOf("Stop Using Your Phone","If You don't stop now, a kitten will die","Stop being addicted","PLEASE STOP USING YOUR PHONE!!!","Oh God Please NO, noooo!!!!")
         var randomElement = list.random()
         return randomElement
     }
