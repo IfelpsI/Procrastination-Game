@@ -2,7 +2,7 @@ import sqlite3
 import logger
 import config
 import json
-import vk_api
+import vk_funcs
 
 module_name = 'user_db_manip.py'
 
@@ -50,23 +50,26 @@ class UsersDb:
             query = f"""
                 CREATE TABLE {self.users_table_name}
             (
-                id integer not null primary key autoincrement,
-            username text not null,
+            id integer not null primary key autoincrement,
+            name text,
+            surname text,
             time_on_phone integer,
             friends text,
             friend_requests_got text,
             friend_requests_sent text,
             vk_id text,
-            vk_friends text 
+            vk_friends text,
+            vk_token text,
+            apps_time integer 
             )
             """
             cursor.execute(query)
             logger.log(module_name, f'table {self.users_table_name} just created')
 
-    def is_user_exists(self, username):
+    def is_user_exists(self, vk_id):
         with self.run_cursor() as cursor:
             query = f"""
-                SELECT id FROM {self.users_table_name} WHERE username = "{username}"
+                SELECT id FROM {self.users_table_name} WHERE vk_id = "{vk_id}"
             """
             cursor.execute(query)
             if cursor.fetchone() is None:
@@ -74,46 +77,114 @@ class UsersDb:
             else:
                 return True
 
-    def create_user(self, username):
-        if not self.is_user_exists(username):
+    def create_vk_user(self, vk_token):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if not self.is_user_exists(user_vk_id):
+            user_name = user_vk_info[0]['first_name']
+            user_surname = user_vk_info[0]['last_name']
             with self.run_cursor() as cursor:
                 query = f"""
-                    INSERT INTO {self.users_table_name} (username, time_on_phone) VALUES ("{username}", 0)
+                    INSERT INTO {self.users_table_name} (vk_id, time_on_phone, name, surname)
+                     VALUES ("{user_vk_id}", 0, "{user_name}", "{user_surname}")
                 """
+
                 cursor.execute(query)
-                logger.log(module_name, f"new user {username} created")
-                ans = {'status': 'OK', 'username': username, 'time': None}
+                logger.log(module_name, f"new user {user_vk_id} created")
+                ans = {'status': 'OK'}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"user {username} already exist")
-            ans = {'status': 'User with this username already exists', 'username': username}
+            logger.log(module_name, f"user {user_vk_id} already exists")
+            ans = {'status': f"user {user_vk_id} already exists"}
             ans = json.dumps(ans)
             return ans
 
-    def get_stat_from_user(self, username):
-        if self.is_user_exists(username):
+    def add_vk_friends(self, vk_token):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if self.is_user_exists(user_vk_id):
+            user_vk_friends_info = user.get_friend_list()
+            friends_in_app = []
+            for vk_friend in user_vk_friends_info['items']:
+                with self.run_cursor() as cursor:
+
+                    query = f"""
+                        SELECT id FROM {self.users_table_name} WHERE vk_id = "{vk_friend['id']}"
+                    """
+
+                    cursor.execute(query)
+                    friend_id = cursor.fetchone()
+                    if friend_id is not None:
+                        friends_in_app.append(str(friend_id[0]))
+            vk_friend_list = ','.join(friends_in_app)
+            with self.run_cursor() as cursor:
+
+                query = f"""
+                    UPDATE {self.users_table_name} SET vk_friends = "{vk_friend_list}" WHERE vk_id = "{user_vk_id}"
+                """
+
+                cursor.execute(query)
+
+                ans = {'status': 'OK'}
+                ans = json.dumps(ans)
+                return ans
+        else:
+            logger.log(module_name, f"there is no such user {user_vk_id}")
+            ans = {'status': f'No such user {user_vk_id}'}
+            ans = json.dumps(ans)
+            return ans
+
+    def get_stats_from_app(self, vk_token, id, apps_stats):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if self.is_user_exists(user_vk_id):
+            with self.run_cursor() as cursor:
+
+                query = f"""
+                    UPDATE {self.users_table_name} SET apps_time = "{str(apps_stats)}" WHERE id = {id} 
+                """
+
+                print(query)
+
+                cursor.execute(query)
+
+                ans = {'status': 'OK'}
+                ans = json.dumps(ans)
+                return ans
+
+        else:
+            logger.log(module_name, f"there is no such user {user_vk_id}")
+            ans = {'status': f'No such user {user_vk_id}'}
+            ans = json.dumps(ans)
+            return ans
+
+    def get_stat_from_user(self, vk_token):
+        if self.is_user_exists(vk_token):
             with self.run_cursor() as cursor:
                 query = f"""
-                    SELECT time_on_phone FROM {self.users_table_name} WHERE username = "{username}"
+                    SELECT time_on_phone FROM {self.users_table_name} WHERE vk_token = "{vk_token}"
                 """
                 cursor.execute(query)
                 time = cursor.fetchone()[0]
-                ans = {'status': 'OK', 'username': username, 'time': time}
+                ans = {'status': 'OK', 'vk_token': vk_token, 'time': time}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"there is no such user {username}")
-            ans = {'status': 'No such user', 'username': username}
+            logger.log(module_name, f"there is no such user {vk_token}")
+            ans = {'status': 'No such user', 'vk_token': vk_token}
             ans = json.dumps(ans)
             return ans
 
-    def update_stat_user(self, username, time):
-        if self.is_user_exists(username):
+    def update_stat_user(self, vk_token, time):
+        if self.is_user_exists(vk_token):
             with self.run_cursor() as cursor:
 
                 query = f"""
-                    SELECT time_on_phone FROM {self.users_table_name} WHERE username = "{username}"
+                    SELECT time_on_phone FROM {self.users_table_name} WHERE vk_token = "{vk_token}"
                 """
 
                 cursor.execute(query)
@@ -121,28 +192,28 @@ class UsersDb:
                 time = int(time) + prev_time
 
                 query = f"""
-                    UPDATE {self.users_table_name} SET time_on_phone = {time} WHERE username = "{username}"
+                    UPDATE {self.users_table_name} SET time_on_phone = {time} WHERE vk_token = "{vk_token}"
                 """
 
                 cursor.execute(query)
 
-                ans = {'status': 'OK', 'username': username, 'time': time}
+                ans = {'status': 'OK', 'vk_token': vk_token, 'time': time}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {vk_token}")
 
-            ans = {'status': 'No such user', 'username': username}
+            ans = {'status': 'No such user', 'vk_token': vk_token}
             ans = json.dumps(ans)
             return ans
 
-    def get_friend_request(self, username, friend):
-        if self.is_user_exists(username):
+    def get_friend_request(self, vk_token, friend):
+        if self.is_user_exists(vk_token):
             if self.is_user_exists(friend):
                 with self.run_cursor() as cursor:
 
                     query = f"""
-                        SELECT friend_requests_sent FROM {self.users_table_name} WHERE username = "{username}"
+                        SELECT friend_requests_sent FROM {self.users_table_name} WHERE vk_token = "{vk_token}"
                     """
 
                     cursor.execute(query)
@@ -151,8 +222,8 @@ class UsersDb:
                         requests_list = requests_list.split(',')
                         for friend_request in requests_list:
                             if friend == friend_request:
-                                ans = {'status': f'Friend request to {friend} by {username} already sent',
-                                       'username': username, 'friend_name': friend}
+                                ans = {'status': f'Friend request to {friend} by {vk_token} already sent',
+                                       'vk_token': vk_token, 'friend_name': friend}
                                 ans = json.dumps(ans)
                                 return ans
                     else:
@@ -161,13 +232,13 @@ class UsersDb:
                     new_requests_list = ','.join(requests_list)
 
                     query = f"""
-                        UPDATE {self.users_table_name} SET friend_requests_sent = "{new_requests_list}" WHERE username = "{username}"
+                        UPDATE {self.users_table_name} SET friend_requests_sent = "{new_requests_list}" WHERE vk_token = "{vk_token}"
                     """
 
                     cursor.execute(query)
 
                     query = f"""
-                        SELECT friend_requests_got FROM {self.users_table_name} WHERE username = "{friend}"
+                        SELECT friend_requests_got FROM {self.users_table_name} WHERE vk_token = "{friend}"
                     """
 
                     cursor.execute(query)
@@ -176,92 +247,96 @@ class UsersDb:
                         got_requests_list = got_requests_list.split(',')
                     else:
                         got_requests_list = []
-                    got_requests_list.append(username)
+                    got_requests_list.append(vk_token)
                     got_requests_list = ','.join(got_requests_list)
 
                     query = f"""
                         UPDATE {self.users_table_name} SET friend_requests_got = "{got_requests_list}"
-                        WHERE username = "{friend}"
+                        WHERE vk_token = "{friend}"
                     """
 
                     cursor.execute(query)
 
-                    ans = {'status': f'Friend request to {friend} by {username} successfully sent',
-                           'username': username, 'friend_name': friend}
+                    ans = {'status': f'Friend request to {friend} by {vk_token} successfully sent',
+                           'vk_token': vk_token, 'friend_name': friend}
                     ans = json.dumps(ans)
 
                     logger.log(module_name,
-                               f"Friend request to {friend} by {username} successfully sent")
+                               f"Friend request to {friend} by {vk_token} successfully sent")
                     return ans
             else:
                 logger.log(module_name, f"there is no such user {friend}")
 
-                ans = {'status': 'No such user', 'username': friend}
+                ans = {'status': 'No such user', 'vk_token': friend}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {vk_token}")
 
-            ans = {'status': 'No such user', 'username': username}
+            ans = {'status': 'No such user', 'vk_token': vk_token}
             ans = json.dumps(ans)
             return ans
 
-    def set_user_vk_id(self, username, vk_id):
-        if self.is_user_exists(username):
+    def set_user_vk_id(self, vk_token, vk_id):
+        if self.is_user_exists(vk_token):
             with self.run_cursor() as cursor:
 
                 query = f"""
-                    UPDATE {self.users_table_name} SET vk_id = "{vk_id}" WHERE username = "{username}"
+                    UPDATE {self.users_table_name} SET vk_id = "{vk_id}" WHERE vk_token = "{vk_token}"
                 """
 
                 cursor.execute(query)
 
-                ans = {'status': f'vk_id added to user {username}', 'username': username}
+                ans = {'status': f'vk_id added to user {vk_token}', 'vk_token': vk_token}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"there is no such user {username}")
+            logger.log(module_name, f"there is no such user {vk_token}")
 
-            ans = {'status': 'No such user', 'username': username}
+            ans = {'status': 'No such user', 'vk_token': vk_token}
             ans = json.dumps(ans)
             return ans
 
-    def search_for_vk_friends(self, username):
-        if self.is_user_exists(username):
+    def search_for_vk_friends(self, vk_token):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if self.is_user_exists(user_vk_id):
             with self.run_cursor() as cursor:
 
                 query = f"""
-                    SELECT vk_friends FROM {self.users_table_name} WHERE username = "{username}"
+                    SELECT vk_friends FROM {self.users_table_name} WHERE vk_id = "{user_vk_id}"
                 """
 
                 cursor.execute(query)
-                vk_friends_list = cursor.fetchone()[0]
+                vk_friends_list = cursor.fetchone()
                 if vk_friends_list:
+                    vk_friends_list = vk_friends_list[0]
                     vk_friends_list = vk_friends_list.split(',')
                 else:
 
-                    ans = {'status': 'User has no vk friends', 'username': username}
+                    ans = {'status': 'User has no vk friends'}
                     ans = json.dumps(ans)
                     return ans
-                vk_friends_username = []
+                vk_friends_info = {}
                 for friend_id in vk_friends_list:
 
                     query = f"""
-                        SELECT username FROM {self.users_table_name} WHERE vk_id = "{friend_id}"
+                        SELECT id, name, surname, apps_time FROM {self.users_table_name} WHERE id = "{friend_id}"
                     """
 
                     cursor.execute(query)
-                    friend = cursor.fetchone()[0]
+                    friend = cursor.fetchone()
                     if friend:
-                        vk_friends_username.append(friend)
+                        vk_friends_info[str(friend[0])] =\
+                            {'name': friend[1], 'surname': friend[2], 'stats': {'unlock_screen': friend[3]}}
 
-                ans = {'status': 'List of vk friends', 'username': username, 'list_of_vk_friends': vk_friends_username}
+                ans = {'status': 'OK', 'content': vk_friends_info}
                 ans = json.dumps(ans)
                 return ans
         else:
-            logger.log(module_name, f"there is no such user {username}")
-
-            ans = {'status': 'No such user', 'username': username}
+            logger.log(module_name, f"there is no such user {user_vk_id}")
+            ans = {'status': f'No such user {user_vk_id}'}
             ans = json.dumps(ans)
             return ans
 
