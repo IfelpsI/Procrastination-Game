@@ -1,5 +1,8 @@
 package com.example.procrastinationgame
 
+import android.app.AppOpsManager
+import android.app.AppOpsManager.MODE_ALLOWED
+import android.app.AppOpsManager.OPSTR_GET_USAGE_STATS
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -28,8 +31,12 @@ import android.media.MediaPlayer
 import android.net.Uri
 import java.nio.file.Paths
 import android.media.AudioAttributes
-
-
+import java.io.BufferedOutputStream
+import java.io.BufferedWriter
+import java.io.OutputStream
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,6 +50,15 @@ class MainActivity : AppCompatActivity() {
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        fun checkForPermission(context:Context):Boolean {
+            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+            val mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
+            return mode == MODE_ALLOWED
+        }
+
+
+        var installedApps = getInstalledApps()
+
         val UsageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         var idi = 0
         var old = getTimeDaily(UsageStatsManager)
@@ -72,7 +88,9 @@ class MainActivity : AppCompatActivity() {
     }
         checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
 
-        openSettings()
+        if (!checkForPermission(this)) {
+            openSettings()
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //var files = listOf("breaking-some-glass", "filling-your-inbox", "slow-spring-board")
@@ -264,16 +282,13 @@ class MainActivity : AppCompatActivity() {
         return fullTime
     }
 
-    private fun getTimeAppsUsed24Hours(usageStatsManager: UsageStatsManager): List<AppList> {
+    private fun getTimeAppsUsed24Hours(usageStatsManager: UsageStatsManager, installedApps: List<AppList>): List<AppList> {
 
-        var beginTime = 0
-        var endTime: Int
         val packages: MutableList<String> = mutableListOf("string")
         var fullPackages: List<String> = packages
         var Package = ""
         val time: MutableList<Int> = mutableListOf()
         var fullTime: List<Int> = time
-        val installedApps = getInstalledApps()
 
         var flag = false
         val INTERVAL = (24 * 60 * 60 * 1000).toLong()
@@ -283,6 +298,8 @@ class MainActivity : AppCompatActivity() {
         val usageEvents = usageStatsManager.queryEvents(begin, end)
         val event = UsageEvents.Event()
         while (usageEvents.hasNextEvent()) {
+            var beginTime = 0
+            var endTime: Int
             usageEvents.getNextEvent(event)
             if (!flag && event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                 packages.add(event.packageName)
