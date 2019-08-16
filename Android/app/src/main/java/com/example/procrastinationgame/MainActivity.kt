@@ -22,8 +22,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import java.nio.file.Paths
 import android.media.AudioAttributes
-
-
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -64,13 +63,14 @@ class MainActivity : AppCompatActivity() {
                 }
         }, waittTme.toLong())
     }
-        checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
+        //checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
 
-        openSettings()
+        //openSettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //var files = listOf("breaking-some-glass", "filling-your-inbox", "slow-spring-board")
-        //var rdomF = files.random()
+        var files = listOf("breaking-some-glass", "filling-your-inbox", "slow-spring-board")
+        var rdomF = files.random()
+        //var notMP = MediaPlayer.create(this,R.raw.breaking_some_glass)
 
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
 
@@ -93,6 +93,9 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
             }
 
+        }
+        show_button.setOnClickListener {
+            changeV()
         }
         fun TestAlert() {
             notify(idi)
@@ -118,8 +121,8 @@ class MainActivity : AppCompatActivity() {
                 //.setContentType(AudioAttributes.USAGE_ALARM)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build()
-            var soundUri = Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.slow_spring_board)
-            channel.setSound(soundUri, audioAttributes)
+            //var soundUri = Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.breaking_some_glass)
+            //channel.setSound(soundUri, audioAttributes)
             // Register the channel with the system
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -135,13 +138,18 @@ class MainActivity : AppCompatActivity() {
         preferencesEditor.putBoolean(IS_DEBUG_MODE, isDebugMode)
         preferencesEditor.apply()
     }
+    fun changeV() {
+        var intent = Intent(this, FriendDisplayActivity::class.java)
+        // Start the new activity.
+        startActivity(intent)
+    }
     fun notify(identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
             //.setContentTitle("Notification Title")
             .setContentTitle(randomTitle())
             .setContentText("I am not Joking!!!")
-            .setSound(Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.slow_spring_board))
+            //.setSound(Uri.parse("android.resource://com.example.procrastinationgame/" + R.raw.breaking_some_glass))
             //notMP.start()
             /*.setStyle(NotificationCompat.BigTextStyle()
                 .bigText("BUAH!!!"))*/
@@ -192,7 +200,6 @@ class MainActivity : AppCompatActivity() {
 
         return fullTime
     }
-
     private fun getTimeDaily(usageStatsManager: UsageStatsManager): Int {
 
         var beginTime = 0
