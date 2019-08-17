@@ -88,12 +88,40 @@ def get_friends():
     except Exception as err:
         logger.log(module_name, str(err))
         return smth_went_wrong
-#
-# @app.route('/friend_stat/<query>')
-# def get_friend_stat(query):
-#     try:
-#         query = json.loads(query)
-#
+
+
+@app.route('/friends_test/<query>')
+def get_friends_test(query):
+    try:
+        query = json.loads(query)
+        token = query['token']
+        return us_db.search_for_vk_friends(token)
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
+
+
+@app.route('/get_stats/', methods=['POST'])
+def get_stats():
+    try:
+        data = request.get_data()
+        query = json.loads(data)
+        token = query['token']
+        return us_db.get_stat_from_user(token)
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
+
+
+@app.route('/get_stats_test/<query>')
+def get_stats(query):
+    try:
+        query = json.loads(query)
+        token = query['token']
+        return us_db.get_stat_from_user(token)
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
 
 
 @app.route('/make_user')
