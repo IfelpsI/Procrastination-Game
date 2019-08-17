@@ -25,8 +25,25 @@ def hello_world():
         return smth_went_wrong
 
 
-@app.route('/send_token/<query>')
-def send_token(query):
+@app.route('/send_token/', methods=["POST"])
+def send_token():
+    try:
+        data = request.get_data()
+        query = json.loads(data)
+        token = query['token']
+        us_db.create_vk_user(token)
+        us_db.add_vk_friends(token)
+
+        ans = {'status': 'OK'}
+        ans = json.dumps(ans)
+        return ans
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
+
+
+@app.route('/send_token_test/<query>')
+def send_token_test(query):
     try:
         query = json.loads(query)
         token = query['token']
@@ -41,16 +58,17 @@ def send_token(query):
         return smth_went_wrong
 
 
-@app.route('/send_stats/<query>')
-def send_stats(query):
+@app.route('/send_stats/', methods=['POST'])
+def send_stats():
     try:
-        query = json.loads(query)
+        data = request.get_data()
+        query = json.loads(data)
         for key, value in query.items():
             if key == 'token':
                 token = query[key]
             else:
                 id = key
-                apps_list = query[id]['unlock_screen']
+                apps_list = query[id]
         us_db.get_stats_from_app(token, id, apps_list)
         ans = {'status': 'OK'}
         ans = json.dumps(ans)
@@ -60,19 +78,22 @@ def send_stats(query):
         return smth_went_wrong
 
 
-@app.route('/friends/<query>')
-def get_friends(query):
+@app.route('/friends/', methods=['POST'])
+def get_friends():
     try:
-        query = json.loads(query)
+        data = request.get_data()
+        query = json.loads(data)
         token = query['token']
         return us_db.search_for_vk_friends(token)
     except Exception as err:
         logger.log(module_name, str(err))
         return smth_went_wrong
-
 #
 # @app.route('/friend_stat/<query>')
-# def get_friend_stat
+# def get_friend_stat(query):
+#     try:
+#         query = json.loads(query)
+#
 
 
 @app.route('/make_user')

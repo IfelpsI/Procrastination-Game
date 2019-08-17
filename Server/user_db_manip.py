@@ -84,10 +84,12 @@ class UsersDb:
         if not self.is_user_exists(user_vk_id):
             user_name = user_vk_info[0]['first_name']
             user_surname = user_vk_info[0]['last_name']
+            base_app_stats = {'apps': 'no_apps'}
+            base_app_stats = str(base_app_stats)
             with self.run_cursor() as cursor:
                 query = f"""
-                    INSERT INTO {self.users_table_name} (vk_id, time_on_phone, name, surname)
-                     VALUES ("{user_vk_id}", 0, "{user_name}", "{user_surname}")
+                    INSERT INTO {self.users_table_name} (vk_id, time_on_phone, name, surname, apps_time, vk_token)
+                     VALUES ("{user_vk_id}", 0, "{user_name}", "{user_surname}", "{base_app_stats}", "{vk_token}")
                 """
 
                 cursor.execute(query)
@@ -117,38 +119,69 @@ class UsersDb:
 
                     cursor.execute(query)
                     friend_id = cursor.fetchone()
-                    if friend_id is not None:
-                        friends_in_app.append(str(friend_id[0]))
+                if friend_id is not None:
+                    friends_in_app.append(str(friend_id[0]))
+                    self.add_friend_back(vk_friend['id'], user_vk_id)
             vk_friend_list = ','.join(friends_in_app)
-            with self.run_cursor() as cursor:
+            if vk_friend_list != "":
+                with self.run_cursor() as cursor:
 
-                query = f"""
-                    UPDATE {self.users_table_name} SET vk_friends = "{vk_friend_list}" WHERE vk_id = "{user_vk_id}"
-                """
+                    query = f"""
+                        UPDATE {self.users_table_name} SET vk_friends = "{vk_friend_list}" WHERE vk_id = "{user_vk_id}"
+                    """
 
-                cursor.execute(query)
+                    cursor.execute(query)
 
-                ans = {'status': 'OK'}
-                ans = json.dumps(ans)
-                return ans
+            ans = {'status': 'OK'}
+            ans = json.dumps(ans)
+            return ans
         else:
             logger.log(module_name, f"there is no such user {user_vk_id}")
             ans = {'status': f'No such user {user_vk_id}'}
             ans = json.dumps(ans)
             return ans
 
+    def add_friend_back(self, user_vk_id, friend_vk_id):
+        with self.run_cursor() as cursor:
+
+            query = f"""
+                SELECT id FROM {self.users_table_name} WHERE vk_id = "{friend_vk_id}"
+            """
+
+            cursor.execute(query)
+            friend_id = str(cursor.fetchone()[0])
+
+            query = f"""
+                SELECT vk_friends FROM {self.users_table_name} WHERE vk_id = "{user_vk_id}"
+            """
+
+            cursor.execute(query)
+            friends_list = []
+            friends = cursor.fetchone()[0]
+            if friends is not None:
+                friends_list = friends.split(',')
+            friends_list.append(friend_id)
+            friends_list_str = ','.join(friends_list)
+
+            query = f"""
+                UPDATE {self.users_table_name} SET vk_friends = "{friends_list_str}" WHERE vk_id = "{user_vk_id}"
+            """
+
+            cursor.execute(query)
+
     def get_stats_from_app(self, vk_token, id, apps_stats):
         user = vk_funcs.VkUser(vk_token)
         user_vk_info = user.get_user_info()
         user_vk_id = user_vk_info[0]['id']
         if self.is_user_exists(user_vk_id):
+            phone_time = apps_stats['unlock_screen']
+            apps_stats.pop('unlock_screen')
             with self.run_cursor() as cursor:
 
                 query = f"""
-                    UPDATE {self.users_table_name} SET apps_time = "{str(apps_stats)}" WHERE id = {id} 
+                    UPDATE {self.users_table_name} SET time_on_phone = {phone_time}, apps_time = "{str(apps_stats)}"
+                    WHERE id = {id} 
                 """
-
-                print(query)
 
                 cursor.execute(query)
 
@@ -322,14 +355,17 @@ class UsersDb:
                 for friend_id in vk_friends_list:
 
                     query = f"""
-                        SELECT id, name, surname, apps_time FROM {self.users_table_name} WHERE id = "{friend_id}"
+                        SELECT id, name, surname, apps_time, time_on_phone 
+                        FROM {self.users_table_name} WHERE id = "{friend_id}"
                     """
 
                     cursor.execute(query)
                     friend = cursor.fetchone()
                     if friend:
+                        stats = eval(friend[3])
+                        stats['unlock_screen'] = friend[4]
                         vk_friends_info[str(friend[0])] =\
-                            {'name': friend[1], 'surname': friend[2], 'stats': {'unlock_screen': friend[3]}}
+                            {'name': friend[1], 'surname': friend[2], 'stats': stats}
 
                 ans = {'status': 'OK', 'content': vk_friends_info}
                 ans = json.dumps(ans)
