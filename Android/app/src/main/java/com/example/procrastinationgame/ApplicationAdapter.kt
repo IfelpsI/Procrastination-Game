@@ -1,8 +1,6 @@
 package com.example.procrastinationgame
 
 import android.content.Context
-import android.content.Intent
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +8,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.animal_list_item.view.*
 import org.json.JSONObject
 
-public class AnimalAdapter(val items: ArrayList<String>, val context: Context, val obj: JSONObject) :
+public class ApplicationAdapter(val items: ArrayList<String>, val context: Context, val obj: JSONObject) :
     RecyclerView.Adapter<AnimalViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
@@ -20,13 +18,6 @@ public class AnimalAdapter(val items: ArrayList<String>, val context: Context, v
         return AnimalViewHolder(LayoutInflater.from(context).inflate(R.layout.animal_list_item, parent, false))
     }
 
-    fun change_to_status(Id: String, name: String) {
-        val intent = Intent(context, FriendStatActivity::class.java)
-        intent.putExtra("USER_ID", Id);
-        intent.putExtra("STRING_OBJ", obj.toString());
-        startActivity(context, intent, null)
-    }
-
     override fun onBindViewHolder(holder: AnimalViewHolder, position: Int) {
         val id = items.get(position)
         val users = obj["content"] as JSONObject
@@ -34,14 +25,10 @@ public class AnimalAdapter(val items: ArrayList<String>, val context: Context, v
         val name = user["name"] as String
 
         holder?.tvAnimalType?.text = name
-        holder?.tvAnimalType.setOnClickListener {
-            change_to_status(id, name)
-        }
     }
 }
 
-class AnimalViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-    // Holds the TextView that will add each animal to
+class ApplicationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val tvAnimalType = view.tv_animal_type
 }
 

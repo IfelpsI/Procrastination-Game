@@ -22,16 +22,10 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
+import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
-import com.example.procrastinationgame.CallAPI
-import java.io.BufferedOutputStream
-import java.io.BufferedWriter
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,9 +35,12 @@ class MainActivity : AppCompatActivity() {
     private val IS_DEBUG_MODE = "isDebugMode"
     private var mPreferences: SharedPreferences? = null
 
+    private val name = this::class.java.simpleName
+
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
 
         fun checkForPermission(context: Context): Boolean {
             val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -75,7 +72,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         button2.setOnClickListener {
-            VKSdk.login(this, VKScope.FRIENDS)
+            //            val ans = URL("http://192.168.212.122:25000/send_token/lOLkEK").readText()
+//            Log.e(name, "answerkek $ans")
+//            VKSdk.login(this, VKScope.FRIENDS)
+//            val token = VKSdk.getAccessToken().accessToken
+//            val ans = URL("http://192.168.212.122:25000/send_token/$token")
             changeV()
         }
 
