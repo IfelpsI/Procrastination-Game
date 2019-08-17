@@ -17,8 +17,8 @@ class CallAPI : AsyncTask<String, String, Unit>() {
     }
 
     override fun doInBackground(vararg params: String?) {
-        val urlString = "http://192.168.212.122:25000/send_token/" // URL to call
-        val data = params[0] //data to post
+        val urlString = params[0] // URL to call
+        val data = params[1] //data to post
         var out: OutputStream? = null
 
         try {
