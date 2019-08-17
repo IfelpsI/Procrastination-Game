@@ -3,6 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.example.procrastinationgame">
 
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission
             android:name="android.permission.PACKAGE_USAGE_STATS"
@@ -22,7 +23,16 @@
                 android:label="ServiceActivity"
                 android:theme="@style/VK.Transparent"/>
 
-        <activity android:name=".MainActivity">
+        <activity
+                android:name="FriendDisplayActivity"
+                android:label="@string/label_friend_display"/>
+        <activity
+                android:name=".FriendStatActivity"
+                android:label="@string/label_friend_stat"/>
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/AppTheme"
+                android:label="@string/label_default">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name" translatable="false">Procrastination Game</string>
+    <string name="label_default">Home</string>
+    <string name="label_friend_display">Your Friends</string>
+    <string name="label_friend_stat">friend TEXT stats</string>
     <string name="not_switched" translatable="false">Debug mode off</string>
     <string name="switched" translatable="false">Debug mode on</string>
     <string name="welcome_message" translatable="false">To start using an app auth with vk account</string>
     <string name="test_alert_button" translatable="false">Auth with vk account</string>
     <integer name="com_vk_sdk_AppId">7098202</integer>
+    <string name="bad_text">Test Text</string>
+    <string name="l1">Line One</string>
+    <string name="l2">Line Two</string>
 </resources>
