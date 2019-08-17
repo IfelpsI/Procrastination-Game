@@ -44,10 +44,6 @@ class FriendDisplayActivity : AppCompatActivity() {
         rv_animal_list.adapter = AnimalAdapter(animals, this,newJsonObj)
 
     }
-    fun cngToStats() {
-        var intent = Intent(this, FriendDisplayActivity::class.java)
-        startActivity(intent)
-    }
     fun addAnimals(friends:JSONArray,users:JSONObject) {
         for (i in 0..(friends.length() - 1)) {
             val friend = friends.getString(i)

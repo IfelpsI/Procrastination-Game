@@ -29,6 +29,12 @@ public class AnimalAdapter(val items : ArrayList<String>, val context: Context,v
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.animal_list_item, parent, false))
     }
     // Binds each animal in the ArrayList to a view
+    fun change_to_status(Id: String,name: String) {
+        var intent = Intent(context, FriendStatActivity::class.java)
+        intent.putExtra("USER_ID", Id);
+        intent.putExtra("STRING_OBJ", obj.toString());
+        startActivity(context, intent, null)
+    }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val id = items.get(position) as String
         val users = obj["content"] as JSONObject
@@ -37,6 +43,9 @@ public class AnimalAdapter(val items : ArrayList<String>, val context: Context,v
 
         //holder?.tvAnimalType?.text = items.get(position) //HERE
         holder?.tvAnimalType?.text = name
+        holder?.tvAnimalType.setOnClickListener({
+            change_to_status(id,name)
+        })
         //var objiobj = obj["content"] as JSONObject
         //var item = items.get(position)
         //holder?.tvAnimalType?.text = objiobj[item] //HERE
