@@ -24,13 +24,17 @@ import java.util.Date
 import android.content.pm.PackageInfo
 
 
-
-
-
 import android.media.MediaPlayer
 import android.net.Uri
 import java.nio.file.Paths
 import android.media.AudioAttributes
+import android.util.Log
+import com.vk.sdk.VKAccessToken
+import com.vk.sdk.VKCallback
+import com.vk.sdk.VKScope
+import com.vk.sdk.VKSdk
+import com.vk.sdk.api.VKError
+import com.vk.sdk.util.VKUtil
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 import java.io.OutputStream
@@ -50,7 +54,8 @@ class MainActivity : AppCompatActivity() {
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        fun checkForPermission(context:Context):Boolean {
+
+        fun checkForPermission(context: Context): Boolean {
             val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             val mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
             return mode == MODE_ALLOWED
@@ -60,33 +65,6 @@ class MainActivity : AppCompatActivity() {
         var installedApps = getInstalledApps()
 
         val UsageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        var idi = 0
-        var old = getTimeDaily(UsageStatsManager)
-        fun checkLoop() {
-            var handler = Handler()
-            var waittTme = 1000 //One Second
-            handler.postDelayed(object : Runnable {
-                override fun run() {
-                    var current = getTimeDaily(UsageStatsManager)
-                    var delta = current - old
-                    if (isDebugMode) {
-                        if (delta >= 1000) {
-                            notify(idi)
-                            old = current
-                            idi++
-                        }
-                    } else {
-                        if (delta >= 20000) {
-                            notify(idi)
-                            old = current
-                            idi++
-                        }
-                    }
-                    handler.postDelayed(this, waittTme.toLong())
-                }
-        }, waittTme.toLong())
-    }
-        checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
 
         if (!checkForPermission(this)) {
             openSettings()
@@ -103,29 +81,15 @@ class MainActivity : AppCompatActivity() {
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
 
-        if (isDebugMode) {
-            switch1.isChecked = true
-        }
+        val fingerprints = VKUtil.getCertificateFingerprint(this, this.packageName);
+        Log.e(MainActivity::class.java.simpleName, "kekeke ${fingerprints[0]}")
 
-        switch1.setOnClickListener {
-            isDebugMode = switch1.isChecked
-            if (switch1.isChecked) {
-                val text = resources.getString(R.string.switched)
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-            } else {
-                val text = resources.getString(R.string.not_switched)
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-            }
-
-        }
-        fun TestAlert() {
-            notify(idi)
-            idi++
-        }
         button2.setOnClickListener {
-            TestAlert()
+            VKSdk.login(this, VKScope.FRIENDS)
+
         }
         createNotificationChannel()
+
     }
 
     private fun createNotificationChannel() {
@@ -160,6 +124,7 @@ class MainActivity : AppCompatActivity() {
         preferencesEditor.putBoolean(IS_DEBUG_MODE, isDebugMode)
         preferencesEditor.apply()
     }
+
     fun notify(identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -177,8 +142,15 @@ class MainActivity : AppCompatActivity() {
             notify(identy, builder.build())
         }
     }
+
     fun randomTitle(): String {
-        var list = mutableListOf("Stop Using Your Phone","If You don't stop now, a kitten will die","Stop being addicted","PLEASE STOP USING YOUR PHONE!!!","Oh God Please NO, noooo!!!!")
+        var list = mutableListOf(
+            "Stop Using Your Phone",
+            "If You don't stop now, a kitten will die",
+            "Stop being addicted",
+            "PLEASE STOP USING YOUR PHONE!!!",
+            "Oh God Please NO, noooo!!!!"
+        )
         var randomElement = list.random()
         return randomElement
     }
@@ -282,7 +254,10 @@ class MainActivity : AppCompatActivity() {
         return fullTime
     }
 
-    private fun getTimeAppsUsed24Hours(usageStatsManager: UsageStatsManager, installedApps: List<AppList>): List<AppList> {
+    private fun getTimeAppsUsed24Hours(
+        usageStatsManager: UsageStatsManager,
+        installedApps: List<AppList>
+    ): List<AppList> {
 
         val packages: MutableList<String> = mutableListOf("string")
         var fullPackages: List<String> = packages

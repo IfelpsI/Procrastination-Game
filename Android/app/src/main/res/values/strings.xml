@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Procrastination Game</string>
-    <string name="not_switched">Debug mode off</string>
-    <string name="switched">Debug mode on</string>
-    <string name="welcome_message">Да здравствует прокрастинация</string>
-    <string name="switch_text">Debug mode</string>
-    <string name="test_alert_button">Test Alert Button</string>
+    <string name="app_name" translatable="false">Procrastination Game</string>
+    <string name="not_switched" translatable="false">Debug mode off</string>
+    <string name="switched" translatable="false">Debug mode on</string>
+    <string name="welcome_message" translatable="false">To start using an app auth with vk account</string>
+    <string name="test_alert_button" translatable="false">Auth with vk account</string>
+    <integer name="com_vk_sdk_AppId">7098202</integer>
 </resources>
