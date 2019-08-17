@@ -65,10 +65,16 @@ class MainActivity : AppCompatActivity() {
         /*time_spent.text = mTimeSpent.toString()*/
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
-
+        fun changeV() {
+            var intent = Intent(this, FriendDisplayActivity::class.java)
+            // Start the new activity.
+            startActivity(intent)
+        }
         button2.setOnClickListener {
             VKSdk.login(this, VKScope.FRIENDS)
+            changeV()
         }
+
     }
 
     private fun createNotificationChannel() {
