@@ -25,6 +25,13 @@ import com.vk.sdk.VKSdk
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
+import com.example.procrastinationgame.CallAPI
+import java.io.BufferedOutputStream
+import java.io.BufferedWriter
+import java.io.OutputStream
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,6 +78,8 @@ class MainActivity : AppCompatActivity() {
             VKSdk.login(this, VKScope.FRIENDS)
             changeV()
         }
+
+        CallAPI().execute("")
 
     }
 
