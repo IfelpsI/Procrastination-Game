@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             changeV()
         }
 
-        CallAPI().execute("")
+        CallAPI().execute("", "")
 
     }
 
