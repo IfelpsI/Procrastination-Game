@@ -9,7 +9,7 @@ class VkUser:
         self.vk = vk_api.VkApi(token=self.token)
 
     def get_user_info(self):
-        params = {'v': '5.101'}
+        params = {'v': '5.101', 'fields': 'photo,photo_medium'}
         user_info = self.vk.method('users.get', params)
         return user_info
 

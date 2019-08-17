@@ -60,6 +60,7 @@ class UsersDb:
             vk_id text,
             vk_friends text,
             vk_token text,
+            vk_photo text,
             apps_time integer 
             )
             """
@@ -84,12 +85,15 @@ class UsersDb:
         if not self.is_user_exists(user_vk_id):
             user_name = user_vk_info[0]['first_name']
             user_surname = user_vk_info[0]['last_name']
+            vk_photo = user_vk_info[0]['photo']
             base_app_stats = {'apps': 'no_apps'}
             base_app_stats = str(base_app_stats)
             with self.run_cursor() as cursor:
                 query = f"""
-                    INSERT INTO {self.users_table_name} (vk_id, time_on_phone, name, surname, apps_time, vk_token)
-                     VALUES ("{user_vk_id}", 0, "{user_name}", "{user_surname}", "{base_app_stats}", "{vk_token}")
+                    INSERT INTO {self.users_table_name} 
+                    (vk_id, time_on_phone, name, surname, apps_time, vk_token, vk_photo)
+                     VALUES 
+                     ("{user_vk_id}", 0, "{user_name}", "{user_surname}", "{base_app_stats}", "{vk_token}", "{vk_photo}")
                 """
 
                 cursor.execute(query)
@@ -196,19 +200,31 @@ class UsersDb:
             return ans
 
     def get_stat_from_user(self, vk_token):
-        if self.is_user_exists(vk_token):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if self.is_user_exists(user_vk_id):
             with self.run_cursor() as cursor:
+
                 query = f"""
-                    SELECT time_on_phone FROM {self.users_table_name} WHERE vk_token = "{vk_token}"
+                    SELECT id, name, surname, apps_time, time_on_phone, vk_photo 
+                    FROM {self.users_table_name} WHERE vk_id = "{user_vk_id}"
                 """
+
                 cursor.execute(query)
-                time = cursor.fetchone()[0]
-                ans = {'status': 'OK', 'vk_token': vk_token, 'time': time}
-                ans = json.dumps(ans)
-                return ans
+                user_info = cursor.fetchone()
+                if user_info:
+                    stats = eval(user_info[3])
+                    stats['unlock_screen'] = user_info[4]
+                    print(user_info[1])
+                    vk_user_info = {'name': user_info[1], 'surname': user_info[2], 'photo': user_info[5], 'stats': stats}
+
+            ans = {'status': 'OK', user_info[0]: vk_user_info}
+            ans = json.dumps(ans)
+            return ans
         else:
-            logger.log(module_name, f"there is no such user {vk_token}")
-            ans = {'status': 'No such user', 'vk_token': vk_token}
+            logger.log(module_name, f"there is no such user {user_vk_id}")
+            ans = {'status': f'No such user {user_vk_id}'}
             ans = json.dumps(ans)
             return ans
 
@@ -355,7 +371,7 @@ class UsersDb:
                 for friend_id in vk_friends_list:
 
                     query = f"""
-                        SELECT id, name, surname, apps_time, time_on_phone 
+                        SELECT id, name, surname, apps_time, time_on_phone, vk_photo 
                         FROM {self.users_table_name} WHERE id = "{friend_id}"
                     """
 
@@ -365,7 +381,7 @@ class UsersDb:
                         stats = eval(friend[3])
                         stats['unlock_screen'] = friend[4]
                         vk_friends_info[str(friend[0])] =\
-                            {'name': friend[1], 'surname': friend[2], 'stats': stats}
+                            {'name': friend[1], 'surname': friend[2], 'photo': friend[5], 'stats': stats}
 
                 ans = {'status': 'OK', 'content': vk_friends_info}
                 ans = json.dumps(ans)
