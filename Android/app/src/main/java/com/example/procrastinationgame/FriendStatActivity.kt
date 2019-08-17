@@ -4,6 +4,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_friend_stat.*
 import org.json.JSONObject
+import android.text.method.ScrollingMovementMethod
+
+
 
 class FriendStatActivity : AppCompatActivity() {
 
@@ -20,6 +23,7 @@ class FriendStatActivity : AppCompatActivity() {
         var displayStr = ""
         setTitle(name)
         siteview.text = "Stats: " + stats.toString()
+        siteview.setMovementMethod(ScrollingMovementMethod())
 
     }
 }
