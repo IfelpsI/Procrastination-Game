@@ -22,21 +22,10 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Toast
-import com.vk.sdk.VKAccessToken
-import com.vk.sdk.VKCallback
-import com.vk.sdk.VKScope
-import com.vk.sdk.VKSdk
-import com.vk.sdk.api.VKError
 import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.MutableList
-import kotlin.collections.indices
-import kotlin.collections.mutableListOf
-import kotlin.collections.random
 
 class MainActivity : AppCompatActivity() {
 
@@ -84,8 +73,8 @@ class MainActivity : AppCompatActivity() {
                     }
                     handler.postDelayed(this, waittTme.toLong())
                 }
-        }, waittTme.toLong())
-    }
+            }, waittTme.toLong())
+        }
         checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
 
         if (!checkForPermission(this)) {
@@ -106,17 +95,6 @@ class MainActivity : AppCompatActivity() {
         val fingerprints = VKUtil.getCertificateFingerprint(this, this.packageName);
         Log.e(MainActivity::class.java.simpleName, "kekeke ${fingerprints[0]}")
 
-        switch1.setOnClickListener {
-            isDebugMode = switch1.isChecked
-            if (switch1.isChecked) {
-                val text = resources.getString(R.string.switched)
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-            } else {
-                val text = resources.getString(R.string.not_switched)
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-            }
-
-        }
         fun TestAlert() {
             notify(idi)
             idi++
@@ -159,6 +137,7 @@ class MainActivity : AppCompatActivity() {
         preferencesEditor.putBoolean(IS_DEBUG_MODE, isDebugMode)
         preferencesEditor.apply()
     }
+
     fun notify(identy: Int) {
         var builder = NotificationCompat.Builder(this, "nc1")
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -176,8 +155,15 @@ class MainActivity : AppCompatActivity() {
             notify(identy, builder.build())
         }
     }
+
     fun randomTitle(): String {
-        var list = mutableListOf("Stop Using Your Phone","If You don't stop now, a kitten will die","Stop being addicted","PLEASE STOP USING YOUR PHONE!!!","Oh God Please NO, noooo!!!!")
+        var list = mutableListOf(
+            "Stop Using Your Phone",
+            "If You don't stop now, a kitten will die",
+            "Stop being addicted",
+            "PLEASE STOP USING YOUR PHONE!!!",
+            "Oh God Please NO, noooo!!!!"
+        )
         var randomElement = list.random()
         return randomElement
     }
