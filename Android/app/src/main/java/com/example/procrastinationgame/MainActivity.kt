@@ -22,6 +22,8 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import com.vk.sdk.VKScope
+import com.vk.sdk.VKSdk
 import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -45,37 +47,9 @@ class MainActivity : AppCompatActivity() {
             return mode == MODE_ALLOWED
         }
 
-
         var installedApps = getInstalledApps()
 
         val UsageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        var idi = 0
-        var old = getTimeDaily(UsageStatsManager)
-        fun checkLoop() {
-            var handler = Handler()
-            var waittTme = 1000 //One Second
-            handler.postDelayed(object : Runnable {
-                override fun run() {
-                    var current = getTimeDaily(UsageStatsManager)
-                    var delta = current - old
-                    if (isDebugMode) {
-                        if (delta >= 1000) {
-                            notify(idi)
-                            old = current
-                            idi++
-                        }
-                    } else {
-                        if (delta >= 20000) {
-                            notify(idi)
-                            old = current
-                            idi++
-                        }
-                    }
-                    handler.postDelayed(this, waittTme.toLong())
-                }
-            }, waittTme.toLong())
-        }
-        checkLoop() ///COMMENT THIS LINE TO PREVENT AUTOMATIC NOTIFICATIONS
 
         if (!checkForPermission(this)) {
             openSettings()
@@ -92,17 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
 
-        val fingerprints = VKUtil.getCertificateFingerprint(this, this.packageName);
-        Log.e(MainActivity::class.java.simpleName, "kekeke ${fingerprints[0]}")
-
-        fun TestAlert() {
-            notify(idi)
-            idi++
-        }
         button2.setOnClickListener {
-            TestAlert()
+            VKSdk.login(this, VKScope.FRIENDS)
         }
-        createNotificationChannel()
     }
 
     private fun createNotificationChannel() {

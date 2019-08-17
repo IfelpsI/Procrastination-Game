@@ -9,6 +9,5 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         VKSdk.initialize(applicationContext)
-        Toast.makeText(this, "kek", Toast.LENGTH_LONG).show()
     }
 }
