@@ -16,15 +16,12 @@ import android.content.pm.PackageInfo
 import android.media.AudioAttributes
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
-import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
