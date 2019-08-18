@@ -20,7 +20,9 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/button2"
-            app:layout_constraintVertical_bias="0.575" android:fontFamily="serif" android:textColor="@color/vk_white"/>
+            app:layout_constraintVertical_bias="0.371"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/vk_white"/>
 
     <Button
             android:text="@string/test_alert_button"

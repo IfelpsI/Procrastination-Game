@@ -8,7 +8,7 @@ import com.vk.sdk.VKSdk
 import kotlinx.android.synthetic.main.activity_friend_display.*
 import org.json.JSONObject
 
-class FriendDisplayActivity : AppCompatActivity() {
+class FriendDisplayActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

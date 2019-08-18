@@ -46,6 +46,7 @@ class CallAPI : AsyncTask<String, String, String>() {
                 response += line
                 line = br.readLine()
             }
+            println(response)
         }
         return response
 

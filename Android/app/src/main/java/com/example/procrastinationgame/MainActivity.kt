@@ -20,16 +20,15 @@ import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.vk.sdk.VKAccessToken
 import com.vk.sdk.VKCallback
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
 import com.vk.sdk.api.VKError
-import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,13 +51,13 @@ class MainActivity : AppCompatActivity() {
             return mode == MODE_ALLOWED
         }
 
-        var installedApps = getInstalledApps()
-
         val UsageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
         if (!checkForPermission(this)) {
             openSettings()
         }
+
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //var files = listOf("breaking-some-glass", "filling-your-inbox", "slow-spring-board")
@@ -73,6 +72,11 @@ class MainActivity : AppCompatActivity() {
 
         if (VKSdk.isLoggedIn()) {
             changeV()
+            val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            var installedApps = getInstalledApps()
+            CallAPI().execute("http://192.168.212.122:25000/send_token/",
+                "{\"token\": \"${VKSdk.getAccessToken().accessToken.toString()}\"}")
+            CallAPI().execute("http://192.168.212.122:25000/send_stats/", "${getTimeAppsUsed24Hours(new, installedApps)}")
         }
 
         button2.setOnClickListener {
@@ -87,9 +91,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val callback = object : VKCallback<VKAccessToken> {
+        val callback = object: VKCallback<VKAccessToken> {
             override fun onResult(token: VKAccessToken) {
+                // User passed authorization
+                CallAPI().execute("http://192.168.212.122:25000/send_token/",
+                    "{\"token\": \"${token.accessToken.toString()}\"}")
                 changeV()
+                val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+                var installedApps = getInstalledApps()
+                CallAPI().execute("http://192.168.212.122:25000/send_stats/", "${getTimeAppsUsed24Hours(new, installedApps)}")
+
             }
 
             override fun onError(errorCode: VKError) {
@@ -266,13 +277,17 @@ class MainActivity : AppCompatActivity() {
     private fun getTimeAppsUsed24Hours(
         usageStatsManager: UsageStatsManager,
         installedApps: List<AppList>
-    ): List<AppList> {
+    ): String {
 
+        val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val packages: MutableList<String> = mutableListOf("string")
         var fullPackages: List<String> = packages
         var Package = ""
-        val time: MutableList<Int> = mutableListOf()
-        var fullTime: List<Int> = time
+        val time: MutableList<Long> = mutableListOf()
+        var fullTime: List<Long> = time
+        val userID = CallAPI().execute("http://192.168.212.122:25000/get_id_by_token/", "{\"token\": \"${VKSdk.getAccessToken().accessToken}\"}").get()
+        val token = VKSdk.getAccessToken().accessToken
+
 
         var flag = false
         val INTERVAL = (24 * 60 * 60 * 1000).toLong()
@@ -281,27 +296,38 @@ class MainActivity : AppCompatActivity() {
 
         val usageEvents = usageStatsManager.queryEvents(begin, end)
         val event = UsageEvents.Event()
+        var beginTime: Long = 0
+        var endTime: Long
         while (usageEvents.hasNextEvent()) {
-            var beginTime = 0
-            var endTime: Int
             usageEvents.getNextEvent(event)
             if (!flag && event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                 packages.add(event.packageName)
                 Package = event.packageName
-                beginTime = event.timeStamp.toInt()
+                beginTime = event.timeStamp
                 flag = true
             } else if (flag && event.eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                endTime = event.timeStamp.toInt()
+                endTime = event.timeStamp
                 time.add(endTime - beginTime)
                 for (i in installedApps) {
                     if (i.packageName == Package) {
-                        i.time += endTime - beginTime
+                        i.time += (endTime - beginTime)
                     }
                 }
                 flag = false
             }
         }
-        return installedApps
+
+        val appsMap = mutableMapOf<String, Map<String, Any>>()
+        for (i in installedApps) {
+            val appMap = mapOf("name" to i.name, "time" to i.time)
+            appsMap.put(i.packageName, appMap)
+        }
+
+        val json = JSONObject(appsMap)
+        json.put("unlock_screen", getTime24Hours(new))
+        var pack = "{\"token\": \"$token\", \"$userID\": $json}"
+        val a = 1
+        return pack
     }
 
     private fun getInstalledApps(): List<AppList> {
