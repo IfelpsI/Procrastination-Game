@@ -71,6 +71,10 @@ class MainActivity : AppCompatActivity() {
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
 
+        if (VKSdk.isLoggedIn()) {
+            changeV()
+        }
+
         button2.setOnClickListener {
             VKSdk.login(this, VKScope.FRIENDS)
         }

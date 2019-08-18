@@ -15,18 +15,28 @@ public class ApplicationAdapter(val items: ArrayList<String>, val context: Conte
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationViewHolder {
-        return ApplicationViewHolder(LayoutInflater.from(context).inflate(R.layout.animal_list_item, parent, false))
+        return ApplicationViewHolder(LayoutInflater.from(context).inflate(R.layout.activity_list_item, parent, false))
     }
 
     override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
         val key = items.get(position)
-        val progStats = obj.get(key)
 
-        holder?.rvAnimalType?.text = progStats.toString()
+        if (key != "unlock_screen") {
+            val progStats = obj.get(key) as JSONObject
+            val progName = progStats.getString("name").capitalize()
+            val progTime = progStats.getString("time")
+            holder?.AppName?.text = progName
+            holder?.TimeSpent?.text = progTime
+        } else {
+            holder?.AppName?.text = "Unlocked Screen"
+            holder?.TimeSpent?.text = obj.getString(key)
+        }
+
     }
 }
 
 class ApplicationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val rvAnimalType = view.rv_animal_type2
+    val AppName = view.appname
+    val TimeSpent = view.timespent
 }
 
