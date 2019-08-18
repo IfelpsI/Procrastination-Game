@@ -20,13 +20,11 @@ import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import com.vk.sdk.VKAccessToken
 import com.vk.sdk.VKCallback
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
 import com.vk.sdk.api.VKError
-import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -38,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private val TIME_SPENT_UNLOCKED_PHONE = "mTimeSpent"
     private val IS_DEBUG_MODE = "isDebugMode"
     private var mPreferences: SharedPreferences? = null
-
     private val name = this::class.java.simpleName
 
     private val sharedPrefFile = "com.example.android.procrstinationprefs"
@@ -51,8 +48,6 @@ class MainActivity : AppCompatActivity() {
             val mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
             return mode == MODE_ALLOWED
         }
-
-        var installedApps = getInstalledApps()
 
         val UsageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
@@ -89,6 +84,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKCallback<VKAccessToken> {
             override fun onResult(token: VKAccessToken) {
+
                 changeV()
             }
 
