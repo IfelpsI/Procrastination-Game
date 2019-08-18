@@ -20,8 +20,11 @@ import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
+import com.vk.sdk.VKAccessToken
+import com.vk.sdk.VKCallback
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
+import com.vk.sdk.api.VKError
 import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -72,16 +75,28 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         button2.setOnClickListener {
-            //            val ans = URL("http://192.168.212.122:25000/send_token/lOLkEK").readText()
-//            Log.e(name, "answerkek $ans")
-//            VKSdk.login(this, VKScope.FRIENDS)
+            VKSdk.login(this, VKScope.FRIENDS)
 //            val token = VKSdk.getAccessToken().accessToken
-//            val ans = URL("http://192.168.212.122:25000/send_token/$token")
             changeV()
         }
 
-        CallAPI().execute("")
 
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val callback = object: VKCallback<VKAccessToken> {
+            override fun onResult(token: VKAccessToken) {
+                // User passed authorization
+            }
+
+            override fun onError(errorCode: VKError) {
+                // User didn't pass authorization
+            }
+        }
+        if (!VKSdk.onActivityResult(requestCode, resultCode, data, callback)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     private fun createNotificationChannel() {
