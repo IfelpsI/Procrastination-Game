@@ -5,30 +5,28 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.animal_list_item.view.*
+import kotlinx.android.synthetic.main.activity_list_item.view.*
 import org.json.JSONObject
 
 public class ApplicationAdapter(val items: ArrayList<String>, val context: Context, val obj: JSONObject) :
-    RecyclerView.Adapter<AnimalViewHolder>() {
+    RecyclerView.Adapter<ApplicationViewHolder>() {
     override fun getItemCount(): Int {
         return items.size
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimalViewHolder {
-        return AnimalViewHolder(LayoutInflater.from(context).inflate(R.layout.animal_list_item, parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationViewHolder {
+        return ApplicationViewHolder(LayoutInflater.from(context).inflate(R.layout.animal_list_item, parent, false))
     }
 
-    override fun onBindViewHolder(holder: AnimalViewHolder, position: Int) {
-        val id = items.get(position)
-        val users = obj["content"] as JSONObject
-        val user = users[id] as JSONObject
-        val name = user["name"] as String
+    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
+        val key = items.get(position)
+        val progStats = obj.get(key)
 
-        holder?.tvAnimalType?.text = name
+        holder?.rvAnimalType?.text = progStats.toString()
     }
 }
 
 class ApplicationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val tvAnimalType = view.tv_animal_type
+    val rvAnimalType = view.rv_animal_type2
 }
 

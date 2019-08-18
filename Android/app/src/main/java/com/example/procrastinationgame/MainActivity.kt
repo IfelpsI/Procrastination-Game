@@ -20,11 +20,13 @@ import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.vk.sdk.VKAccessToken
 import com.vk.sdk.VKCallback
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
 import com.vk.sdk.api.VKError
+import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -68,23 +70,22 @@ class MainActivity : AppCompatActivity() {
         /*time_spent.text = mTimeSpent.toString()*/
 
         isDebugMode = mPreferences!!.getBoolean(IS_DEBUG_MODE, false)
-        fun changeV() {
-            var intent = Intent(this, FriendDisplayActivity::class.java)
-            // Start the new activity.
-            startActivity(intent)
-        }
+
         button2.setOnClickListener {
             VKSdk.login(this, VKScope.FRIENDS)
         }
+    }
 
-
-
+    fun changeV() {
+        var intent = Intent(this, FriendDisplayActivity::class.java)
+        // Start the new activity.
+        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val callback = object: VKCallback<VKAccessToken> {
+        val callback = object : VKCallback<VKAccessToken> {
             override fun onResult(token: VKAccessToken) {
-                // User passed authorization
+                changeV()
             }
 
             override fun onError(errorCode: VKError) {

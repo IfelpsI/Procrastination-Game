@@ -10,48 +10,44 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.HttpsURLConnection.*
 
 
-class CallAPI : AsyncTask<String, String, Unit>() {
+class CallAPI : AsyncTask<String, String, String>() {
 
     override fun onPreExecute() {
         super.onPreExecute()
     }
 
-    override fun doInBackground(vararg params: String?) {
+    override fun doInBackground(vararg params: String?): String {
         val urlString = params[0] // URL to call
         val data = params[1] //data to post
         var out: OutputStream? = null
 
-        try {
-            val url = URL(urlString)
-            val urlConnection = url.openConnection() as HttpURLConnection
-            urlConnection.requestMethod = "POST"
-            out = BufferedOutputStream(urlConnection.outputStream)
 
-            val writer = BufferedWriter(OutputStreamWriter(out, "UTF-8"))
-            writer.write(data)
-            writer.flush()
-            writer.close()
-            out.close()
+        val url = URL(urlString)
+        val urlConnection = url.openConnection() as HttpURLConnection
+        urlConnection.requestMethod = "POST"
+        out = BufferedOutputStream(urlConnection.outputStream)
 
-            urlConnection.connect()
+        val writer = BufferedWriter(OutputStreamWriter(out, "UTF-8"))
+        writer.write(data)
+        writer.flush()
+        writer.close()
+        out.close()
 
-            val responseCode = urlConnection.getResponseCode()
-            var response = ""
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
+        urlConnection.connect()
 
-                val br = BufferedReader(InputStreamReader(urlConnection.getInputStream()))
-                var line =  br.readLine()
+        val responseCode = urlConnection.getResponseCode()
+        var response = ""
+        if (responseCode == HttpsURLConnection.HTTP_OK) {
 
-                while (line != null) {
-                    response += line
-                    line = br.readLine()
-                }
-            } else {
-                response = ""
+            val br = BufferedReader(InputStreamReader(urlConnection.getInputStream()))
+            var line = br.readLine()
 
+            while (line != null) {
+                response += line
+                line = br.readLine()
             }
-        } catch (e: Exception) {
-            println(e.message)
         }
+        return response
+
     }
 }//set context variables if required

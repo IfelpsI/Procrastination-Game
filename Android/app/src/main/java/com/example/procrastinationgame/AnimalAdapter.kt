@@ -3,11 +3,14 @@ package com.example.procrastinationgame
 import android.content.Context
 import android.content.Intent
 import android.support.v4.content.ContextCompat.startActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.activity_friend_display.*
 import kotlinx.android.synthetic.main.animal_list_item.view.*
+import kotlinx.android.synthetic.main.activity_friend_stat.view.*
 import org.json.JSONObject
 
 public class AnimalAdapter(val items: ArrayList<String>, val context: Context, val obj: JSONObject) :
@@ -21,9 +24,21 @@ public class AnimalAdapter(val items: ArrayList<String>, val context: Context, v
     }
 
     fun change_to_status(Id: String, name: String) {
-        val intent = Intent(context, FriendStatActivity::class.java)
-        intent.putExtra("USER_ID", Id);
-        intent.putExtra("STRING_OBJ", obj.toString());
+
+        var intent = Intent(context, FriendStatActivity::class.java)
+        val content = obj.getJSONObject("content")
+        val person = content.getJSONObject(Id)
+        val stats = person.getJSONObject("stats")
+        val apps = stats.getJSONObject("apps")
+        val name = person.getString("name")
+        var statsKeys = ArrayList<String>()
+        for (key in stats.keys()) {
+            statsKeys.add(key)
+        }
+        intent.putExtra("USER_ID", Id)
+        intent.putExtra("STATS", stats.toString())
+        intent.putExtra("NAME", name)
+        intent.putExtra("KEYS", statsKeys)
         startActivity(context, intent, null)
     }
 
@@ -40,7 +55,7 @@ public class AnimalAdapter(val items: ArrayList<String>, val context: Context, v
     }
 }
 
-class AnimalViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class AnimalViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     // Holds the TextView that will add each animal to
     val tvAnimalType = view.tv_animal_type
 }
