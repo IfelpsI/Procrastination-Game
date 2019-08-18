@@ -86,6 +86,7 @@ def send_stats():
 def get_friends():
     try:
         data = request.get_data()
+        print(data)
         query = json.loads(data)
         token = query['token']
         return us_db.search_for_vk_friends(token)
@@ -122,10 +123,10 @@ def get_id_by_token():
     try:
         data = request.get_data()
         print(data)
-        print(data)
         query = json.loads(data)
         token = query['token']
-        return us_db.get_id_by_token(token)
+        blyat = us_db.get_id_by_token(token)
+        return blyat
     except Exception as err:
         logger.log(module_name, str(err))
         return smth_went_wrong

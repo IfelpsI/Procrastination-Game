@@ -160,11 +160,12 @@ class UsersDb:
             """
 
             cursor.execute(query)
-            friends_list = []
+            friends_list = set()
             friends = cursor.fetchone()[0]
             if friends is not None:
                 friends_list = friends.split(',')
-            friends_list.append(friend_id)
+                friends_list = set(friends_list)
+            friends_list.update(friend_id)
             friends_list_str = ','.join(friends_list)
 
             query = f"""
@@ -232,6 +233,7 @@ class UsersDb:
         user = vk_funcs.VkUser(vk_token)
         user_vk_info = user.get_user_info()
         user_vk_id = user_vk_info[0]['id']
+        print(user_vk_id)
         if self.is_user_exists(user_vk_id):
             with self.run_cursor() as cursor:
                 query = f"""
@@ -242,6 +244,11 @@ class UsersDb:
                 user_info = str(cursor.fetchone()[0])
                 print(user_info)
                 return user_info
+        else:
+            logger.log(module_name, f"there is no such user {user_vk_id}")
+            ans = {'status': f'No such user {user_vk_id}'}
+            ans = json.dumps(ans)
+            return ans
 
     def update_stat_user(self, vk_token, time):
         if self.is_user_exists(vk_token):
@@ -373,9 +380,8 @@ class UsersDb:
                 """
 
                 cursor.execute(query)
-                vk_friends_list = cursor.fetchone()
+                vk_friends_list = cursor.fetchone()[0]
                 if vk_friends_list:
-                    vk_friends_list = vk_friends_list[0]
                     vk_friends_list = vk_friends_list.split(',')
                 else:
 
@@ -383,6 +389,7 @@ class UsersDb:
                     ans = json.dumps(ans)
                     return ans
                 vk_friends_info = {}
+                print()
                 for friend_id in vk_friends_list:
 
                     query = f"""
@@ -400,6 +407,7 @@ class UsersDb:
 
                 ans = {'status': 'OK', 'content': vk_friends_info}
                 ans = json.dumps(ans)
+                print(ans)
                 return ans
         else:
             logger.log(module_name, f"there is no such user {user_vk_id}")
