@@ -29,6 +29,7 @@ def hello_world():
 def send_token():
     try:
         data = request.get_data()
+        print(data)
         query = json.loads(data)
         token = query['token']
         us_db.create_vk_user(token)
@@ -62,13 +63,16 @@ def send_token_test(query):
 def send_stats():
     try:
         data = request.get_data()
+        print(data)
         query = json.loads(data)
+        print(query)
         for key, value in query.items():
             if key == 'token':
                 token = query[key]
             else:
                 id = key
                 apps_list = query[id]
+                print(apps_list)
         us_db.get_stats_from_app(token, id, apps_list)
         ans = {'status': 'OK'}
         ans = json.dumps(ans)
@@ -108,6 +112,31 @@ def get_stats():
         query = json.loads(data)
         token = query['token']
         return us_db.get_stat_from_user(token)
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
+
+
+@app.route('/get_id_by_token/', methods=['POST'])
+def get_id_by_token():
+    try:
+        data = request.get_data()
+        print(data)
+        print(data)
+        query = json.loads(data)
+        token = query['token']
+        return us_db.get_id_by_token(token)
+    except Exception as err:
+        logger.log(module_name, str(err))
+        return smth_went_wrong
+
+
+@app.route('/get_id_by_token_test/<query>')
+def get_id_by_token_test(query):
+    try:
+        query = json.loads(query)
+        token = query['token']
+        return us_db.get_id_by_token(token)
     except Exception as err:
         logger.log(module_name, str(err))
         return smth_went_wrong

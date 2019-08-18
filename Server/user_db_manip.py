@@ -183,11 +183,11 @@ class UsersDb:
             with self.run_cursor() as cursor:
 
                 query = f"""
-                    UPDATE {self.users_table_name} SET time_on_phone = {phone_time}, apps_time = "{str(apps_stats)}"
+                    UPDATE {self.users_table_name} SET time_on_phone = {phone_time}, apps_time = ?
                     WHERE id = {id} 
                 """
 
-                cursor.execute(query)
+                cursor.execute(query, (str(apps_stats),))
 
                 ans = {'status': 'OK'}
                 ans = json.dumps(ans)
@@ -227,6 +227,21 @@ class UsersDb:
             ans = {'status': f'No such user {user_vk_id}'}
             ans = json.dumps(ans)
             return ans
+
+    def get_id_by_token(self, vk_token):
+        user = vk_funcs.VkUser(vk_token)
+        user_vk_info = user.get_user_info()
+        user_vk_id = user_vk_info[0]['id']
+        if self.is_user_exists(user_vk_id):
+            with self.run_cursor() as cursor:
+                query = f"""
+                               SELECT id FROM {self.users_table_name} WHERE vk_id = "{user_vk_id}"
+                           """
+
+                cursor.execute(query)
+                user_info = str(cursor.fetchone()[0])
+                print(user_info)
+                return user_info
 
     def update_stat_user(self, vk_token, time):
         if self.is_user_exists(vk_token):
