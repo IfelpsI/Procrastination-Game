@@ -29,15 +29,16 @@ public class AnimalAdapter(val items: ArrayList<String>, val context: Context, v
         val content = obj.getJSONObject("content")
         val person = content.getJSONObject(Id)
         val stats = person.getJSONObject("stats")
-        val apps = stats.getJSONObject("apps")
-        val name = person.getString("name")
+        val nameh = person.getString("name")
+        val surnameh = person.getString("surname")
         var statsKeys = ArrayList<String>()
         for (key in stats.keys()) {
             statsKeys.add(key)
         }
         intent.putExtra("USER_ID", Id)
         intent.putExtra("STATS", stats.toString())
-        intent.putExtra("NAME", name)
+        intent.putExtra("NAME", nameh.toString())
+        intent.putExtra("SURNAME", surnameh.toString())
         intent.putExtra("KEYS", statsKeys)
         startActivity(context, intent, null)
     }
