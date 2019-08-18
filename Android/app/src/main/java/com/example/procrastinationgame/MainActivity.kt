@@ -25,7 +25,6 @@ import com.vk.sdk.VKCallback
 import com.vk.sdk.VKScope
 import com.vk.sdk.VKSdk
 import com.vk.sdk.api.VKError
-import com.vk.sdk.util.VKUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -76,8 +75,6 @@ class MainActivity : AppCompatActivity() {
         }
         button2.setOnClickListener {
             VKSdk.login(this, VKScope.FRIENDS)
-//            val token = VKSdk.getAccessToken().accessToken
-            changeV()
         }
 
 
