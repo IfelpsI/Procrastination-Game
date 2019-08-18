@@ -114,7 +114,7 @@ def get_stats():
 
 
 @app.route('/get_stats_test/<query>')
-def get_stats(query):
+def get_stats_test(query):
     try:
         query = json.loads(query)
         token = query['token']
